@@ -40,5 +40,13 @@ public class BloodRequestController {
 
     @PostMapping("/fulfill-request")
     public ResponseEntity<?> fulfillRequest(@RequestBody BloodRequestDto bloodRequestDto) {
-        return new ResponseEntity<>(iBloodRequestService.fulfillBloodRequest(bloodRequestDto), HttpStatus.OK);    }
+        return new ResponseEntity<>(iBloodRequestService.fulfillBloodRequest(bloodRequestDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/emergency-request")
+    public ResponseEntity<?>  getEmergencyBloodRequest() {
+        return new ResponseEntity<>(iBloodRequestService.getEmergencyBloodRequest(), HttpStatus.OK);
+    }
 }
+
+

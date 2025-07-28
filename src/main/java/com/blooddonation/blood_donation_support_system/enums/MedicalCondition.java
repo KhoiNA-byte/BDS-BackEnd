@@ -1,15 +1,12 @@
 package com.blooddonation.blood_donation_support_system.enums;
 
 public enum MedicalCondition {
-    TRAUMA_EMERGENCY_SURGERY("Trauma/Emergency Surgery", "Severe injury requiring immediate surgical intervention", Urgency.HIGH),
-    SEVERE_ANEMIA("Severe Anemia", "Critically low hemoglobin levels", Urgency.HIGH),
-    ACTIVE_BLEEDING("Active Bleeding", "Ongoing blood loss from internal or external sources", Urgency.HIGH),
-    CARDIAC_SURGERY("Cardiac Surgery", "Heart surgery requiring blood products", Urgency.MEDIUM),
-    CANCER_TREATMENT("Cancer Treatment", "Chemotherapy-induced blood disorders", Urgency.MEDIUM),
-    ORGAN_TRANSPLANT("Organ Transplant", "Major organ transplantation procedure", Urgency.MEDIUM),
-    PREGNANCY_COMPLICATIONS("Pregnancy Complications", "Maternal or fetal complications requiring blood", Urgency.MEDIUM),
-    PLANNED_SURGERY("Planned Surgery", "Elective surgical procedure", Urgency.LOW),
-    BLOOD_DISORDER("Blood Disorder", "Chronic blood-related conditions", Urgency.LOW);
+    CHRONIC_STABLE_CONDITIONS("Chronic Stable Conditions", "Iron deficiency anemia, chronic kidney disease, regular transfusion thalassemia", Urgency.LOW),
+    PLANNED_SURGERY("Planned Surgery", "Scheduled surgery, pre-operative blood preparation, elective procedures", Urgency.LOW),
+    MODERATE_ANEMIA_OR_BLEEDING("Moderate Anemia or Bleeding", "Moderate bleeding, gastrointestinal bleeding, moderate anemia", Urgency.MEDIUM),
+    ACUTE_HEMORRHAGE("Acute Hemorrhage", "Postpartum hemorrhage, acute gastrointestinal bleeding, sudden blood loss", Urgency.HIGH),
+    TRAUMA_AND_MAJOR_SURGERY("Trauma and Major Surgery", "Traffic accidents, heart/liver surgery, massive blood loss", Urgency.HIGH),
+    OTHERS("Others", "Other medical conditions requiring blood transfusion", Urgency.MEDIUM);
 
     private final String condition;
     private final String description;

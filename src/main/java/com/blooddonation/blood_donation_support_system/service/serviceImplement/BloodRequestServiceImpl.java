@@ -15,6 +15,7 @@ import com.blooddonation.blood_donation_support_system.service.MedicalFacilitySt
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -163,6 +164,15 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
         return BloodRequestMapper.toBloodRequestDto(bloodRequest);
     }
 
+    @Override
+    public List<BloodRequestDto> getEmergencyBloodRequest() {
+        return bloodRequestRepository.findAllByUrgency(Urgency.HIGH)
+                .stream()
+                .filter(request -> request.getStatus() == BloodRequestStatus.PENDING)
+                .map(BloodRequestMapper::toBloodRequestDto)
+                .toList();
+    }
+
     @PostConstruct
     @Transactional
     public void availableQueueWorker() {
@@ -171,7 +181,7 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
                 try {
                     BloodRequestDto request = bloodRequestQueue.peek();
                     if (request == null) {
-                        Thread.sleep(60 * 1000);
+                        Thread.sleep(1* 1000);
                         continue;
                     }
                     int delay = getDelayMinutes(request.getUrgency());

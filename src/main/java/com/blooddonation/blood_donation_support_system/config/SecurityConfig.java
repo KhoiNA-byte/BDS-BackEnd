@@ -62,7 +62,7 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/uploads/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/uploads/**", "/api/blood-request/emergency-request").permitAll()
                         .requestMatchers("/api/user/account/list-account", "/api/user/account/{accountId}/role", "/api/user/account/{accountId}/status", "/api/user/account/list-account/{accountId}").hasRole("ADMIN")
                         .requestMatchers("/api/user/account/**").hasAnyRole("MEMBER", "ADMIN", "STAFF")
                         .requestMatchers("/api/user/profile/list-profile/{accountId}", "/api/user/profile/list-profile", "/api/user/profile/list-profile/{accountId}/history", "/api/user/profile/create").hasRole("ADMIN")
