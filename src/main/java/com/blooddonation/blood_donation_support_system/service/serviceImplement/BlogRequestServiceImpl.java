@@ -122,7 +122,7 @@ public class BlogRequestServiceImpl implements BlogRequestService {
         }
         validator.validateEventVerification(action);
 
-        if (action.equals("reject")) {
+        if (action.equalsIgnoreCase("reject")) {
             // Delete thumbnail if exists
             String thumbnail = blogRequest.getBlogDto().getThumbnail();
             if (thumbnail != null && !thumbnail.isEmpty()) {

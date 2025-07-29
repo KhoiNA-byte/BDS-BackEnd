@@ -117,7 +117,7 @@ public class ProfileController {
 
     // Show history of specific account
     @GetMapping("/list-profile/{accountId}/history")
-    public ResponseEntity<Page<UserDonationHistoryDto>> getHistoryById(
+    public ResponseEntity<?> getHistoryById(
             @PathVariable Long accountId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -127,9 +127,26 @@ public class ProfileController {
             Page<UserDonationHistoryDto> history = profileService.getDonationHistory(accountId, page, size, sortBy, ascending);
             return ResponseEntity.ok(history);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{profileId}/history")
+    public ResponseEntity<?> getHistoryByProfileId(
+            @PathVariable Long profileId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending) {
+        try {
+            Page<UserDonationHistoryDto> history = profileService.getDonationHistoryById(profileId, page, size, sortBy, ascending);
+            return ResponseEntity.ok(history);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

@@ -73,7 +73,7 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
         bloodRequestDto.setStatus(BloodRequestStatus.PENDING);
         Profile profile = null;
         if(bloodRequestDto.getProfile() == null) {
-            profile = ProfileMapper.toEntity(profileService.getProfileById(bloodRequestDto.getProfileId()));
+            profile = ProfileMapper.toEntity(profileService.getProfileByProfileId(bloodRequestDto.getProfileId()));
         } else {
             profile = ProfileMapper.toEntity(profileService.saveProfile(bloodRequestDto.getProfile()));
         }

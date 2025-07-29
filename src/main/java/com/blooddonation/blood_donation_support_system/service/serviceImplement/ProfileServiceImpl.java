@@ -82,6 +82,11 @@ public class ProfileServiceImpl implements ProfileService {
         return ProfileMapper.toDto(profile);
     }
 
+    public ProfileDto getProfileByProfileId(Long profileId) {
+        Profile profile = validator.getProfileOrThrowById(profileId);
+        return ProfileMapper.toDto(profile);
+    }
+
     public List<ProfileDto> getProfileByPersonalId(String personalId) {
         return profileRepository.findAllByPersonalId(personalId)
                 .stream()
@@ -96,6 +101,7 @@ public class ProfileServiceImpl implements ProfileService {
 
         Profile profile = ProfileMapper.toEntity(profileDto);
         Profile savedProfile = profileRepository.save(profile);
+        profileDistanceService.getDistanceByProfileId(savedProfile.getId());
         return ProfileMapper.toDto(savedProfile);
     }
 
@@ -106,6 +112,8 @@ public class ProfileServiceImpl implements ProfileService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         return eventRegistrationRepository.findByAccount(account, pageable).map(userDonationHistoryMapper::toDto);
     }
+
+
 
     public Page<ProfileDto> getAllProfiles(int pageNumber, int pageSize, String sortBy, boolean ascending) {
         Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -167,7 +175,15 @@ public class ProfileServiceImpl implements ProfileService {
                 .map(ProfileMapper::toDto)
                 .toList();
     }
-    
+
+    @Transactional
+    public Page<UserDonationHistoryDto> getDonationHistoryById(Long profileId, int pageNumber, int pageSize, String sortBy, boolean ascending) {
+        Profile profile = validator.getProfileOrThrowById(profileId);
+        Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        return eventRegistrationRepository.findByProfileId(profile, pageable).map(userDonationHistoryMapper::toDto);
+    }
+
     private boolean hasAddressChanged(Profile originalProfile, ProfileDto updatedProfileDto) {
         return !java.util.Objects.equals(originalProfile.getAddress(), updatedProfileDto.getAddress()) ||
                !java.util.Objects.equals(originalProfile.getWard(), updatedProfileDto.getWard()) ||

@@ -66,7 +66,7 @@ public class BlogRequestController {
         }
     }
 
-    @PutMapping("pending/{requestId}/verify")
+    @PutMapping("/pending/{requestId}/verify")
     public ResponseEntity<String> verifyDonationRequest(
             @PathVariable Long requestId,
             @RequestParam String action) {

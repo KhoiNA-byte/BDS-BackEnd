@@ -20,5 +20,7 @@ public interface ProfileService {
 
     List<ProfileDto> searchProfiles(String query);
 
+    Page<UserDonationHistoryDto> getDonationHistoryById(Long profileId, int pageNumber, int pageSize, String sortBy, boolean ascending);
+
     void notifyEligibleDonors();
 }
