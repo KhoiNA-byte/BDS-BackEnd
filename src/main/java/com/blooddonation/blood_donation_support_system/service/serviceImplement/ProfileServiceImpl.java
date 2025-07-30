@@ -101,7 +101,9 @@ public class ProfileServiceImpl implements ProfileService {
 
         Profile profile = ProfileMapper.toEntity(profileDto);
         Profile savedProfile = profileRepository.save(profile);
-        profileDistanceService.getDistanceByProfileId(savedProfile.getId());
+        try {
+            profileDistanceService.getDistanceByProfileId(savedProfile.getId());
+        } catch (Exception e){}
         return ProfileMapper.toDto(savedProfile);
     }
 
@@ -121,7 +123,7 @@ public class ProfileServiceImpl implements ProfileService {
         return profileRepository.findAll(pageable).map(ProfileMapper::toDto);
     }
 
-    @Scheduled(cron = "0 0 0 * * *") // Runs daily at 00:00
+    @Scheduled(cron = "0 */5 * * * *") // Runs daily at 00:00
     @Transactional
     public void notifyEligibleDonors() {
         // Get all profiles where nextEligibleDonationDate is today
