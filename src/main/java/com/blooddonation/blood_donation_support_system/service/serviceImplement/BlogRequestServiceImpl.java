@@ -67,17 +67,22 @@ public class BlogRequestServiceImpl implements BlogRequestService {
         try {
             String thumbnailName = UUID.randomUUID() + "_thumbnail";
             Path thumbnailPath = Paths.get(uploadDir, thumbnailName);
+            Files.createDirectories(thumbnailPath.getParent());
+
             Files.copy(thumbnail.getInputStream(), thumbnailPath, StandardCopyOption.REPLACE_EXISTING);
-            blogDto.setThumbnail(uploadDir + "/" + thumbnailName);
+
+            blogDto.setThumbnail(thumbnailPath.toString());
 
             BlogRequest blogRequest = BlogRequestMapper.createBlog(blogDto, staff);
             blogRequestRepository.save(blogRequest);
+
             return "Blog Request created successfully";
         } catch (IOException e) {
             log.error("Error creating blog request: ", e);
             throw new RuntimeException("Failed to create blog request: " + e.getMessage());
         }
     }
+
 
     public String updateBlogRequest(Long accountId, Long blogId, BlogDto blogDto, MultipartFile thumbnail) {
         Account staff = validator.getDonorOrThrow(accountId);
