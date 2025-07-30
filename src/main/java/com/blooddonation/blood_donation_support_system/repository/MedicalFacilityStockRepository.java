@@ -27,6 +27,9 @@ public interface MedicalFacilityStockRepository extends JpaRepository<MedicalFac
     @Query("UPDATE MedicalFacilityStock s SET s.volume = s.volume - :volume WHERE s.bloodType = :bloodType AND s.componentType = :componentType AND s.volume >= :volume and s.expiryDate >= CURRENT_DATE")
     int withdrawBloodFromStock(BloodType bloodType, ComponentType componentType, Double volume);
     @Modifying
+    @Query("DELETE FROM MedicalFacilityStock s WHERE s.volume <= 0")
+    int deleteZeroVolumeStocks();
+    @Modifying
     @Query("UPDATE MedicalFacilityStock s SET s.volume = s.volume + :volume WHERE s.bloodType = :bloodType AND s.componentType = :componentType and s.expiryDate = :expiryDate")
     int addStock(BloodType bloodType, ComponentType componentType, Double volume, LocalDate expiryDate);
 }
