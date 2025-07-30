@@ -45,18 +45,18 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (account != null) {
             switch (account.getRole()) {
                 case ADMIN:
-                    redirectUrl = "http://localhost:3000/admins/dashboard";
+                    redirectUrl = System.getenv("FRONTEND_URL").concat("/admins/dashboard");
                     break;
                 case STAFF:
-                    redirectUrl = "http://localhost:3000/staffs/dashboard";
+                    redirectUrl = System.getenv("FRONTEND_URL").concat("/staffs/dashboard");
                     break;
                 default:
-                    redirectUrl = "http://localhost:3000";
+                    redirectUrl = System.getenv("FRONTEND_URL");
                     break;
             }
         } else {
             // Default to member page if account not found (though this shouldn't happen)
-            redirectUrl = "http://localhost:3000";
+            redirectUrl = System.getenv("FRONTEND_URL");
         }
 
         response.sendRedirect(redirectUrl);
