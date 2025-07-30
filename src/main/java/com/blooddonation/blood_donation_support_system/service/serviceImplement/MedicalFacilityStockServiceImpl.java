@@ -69,13 +69,13 @@ public class MedicalFacilityStockServiceImpl implements MedicalFacilityStockServ
                     componentRequest.getVolume()
             );
         }
-
+        
         // Delete any stock entries that have zero or negative volume after withdrawal
         int deletedEntries = medicalFacilityStockRepository.deleteZeroVolumeStocks();
         if (deletedEntries > 0) {
             System.out.println("Deleted " + deletedEntries + " empty stock entries after withdrawal");
         }
-
+        
         if(!bloodRequestDto.isAutomation()) {
             bloodRequestDto.setStatus(BloodRequestStatus.FULFILLED);
             bloodRequestRepository.save(BloodRequestMapper.toBloodRequestEntity(bloodRequestDto, ProfileMapper.toEntity(bloodRequestDto.getProfile())));

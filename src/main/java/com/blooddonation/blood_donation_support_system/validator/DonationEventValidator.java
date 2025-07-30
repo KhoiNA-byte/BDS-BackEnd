@@ -77,14 +77,27 @@ public class DonationEventValidator {
                 .orElseThrow(() -> new RuntimeException(("Profile not found with id: " + personalId)));
     }
 
-    public EventRegistration getRegistrationOrThrow(String personalId, DonationEvent event) {
+    public EventRegistration getRegistrationOrThrow(String personalId, DonationEvent event, CheckinToken checkinToken) {
         Profile profile = profileRepository.findByPersonalId(personalId)
                 .orElseThrow(() -> new RuntimeException("Profile not found with personal ID: " + personalId));
 
         Account account = accountRepository.findById(profile.getAccountId())
                 .orElseThrow(() -> new RuntimeException("Account not found for personal ID: " + personalId));
-        return eventRegistrationRepository.findByEventAndAccount(event, account)
-                .orElseThrow(() -> new RuntimeException("No pending registration found for personal ID: " + personalId));
+        if (checkinToken != null) {
+            return eventRegistrationRepository.findByEventAndCheckinToken(event, checkinToken)
+                    .orElseThrow(() -> new RuntimeException("Checkin token not found for checkin token: " + checkinToken));
+        }
+
+        List<EventRegistration> registrations = eventRegistrationRepository.findAllByEventAndAccount(event, account);
+        if (registrations.isEmpty()) {
+            throw new RuntimeException("No registration found for personal ID: " + personalId);
+        }
+
+        // Prefer the one with checkinToken not null, otherwise return the first
+        return registrations.stream()
+                .filter(r -> r.getCheckinToken() != null)
+                .findFirst()
+                .orElse(registrations.getFirst());
     }
 
     public void validateEventVerification(String action) {

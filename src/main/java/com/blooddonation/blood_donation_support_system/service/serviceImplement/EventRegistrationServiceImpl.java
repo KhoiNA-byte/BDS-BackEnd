@@ -159,7 +159,8 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
         validator.validateCheckinVerification(action);
         // Fetch Data
         DonationEvent event = validator.getEventOrThrow(eventId);
-        EventRegistration registration = validator.getRegistrationOrThrow(profileDto.getPersonalId(), event);
+        CheckinToken checkinToken = null;
+        EventRegistration registration = validator.getRegistrationOrThrow(profileDto.getPersonalId(), event, checkinToken);
 
         if (action.equals("approve")) {
             registration.setStatus(DonationRegistrationStatus.CHECKED_IN);

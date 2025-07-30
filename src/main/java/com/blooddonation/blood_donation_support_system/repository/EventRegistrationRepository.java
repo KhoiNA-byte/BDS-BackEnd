@@ -13,6 +13,8 @@ import java.util.Optional;
 @Repository
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Long> {
     List<EventRegistration> findByEventId(Long eventId);
+    List<EventRegistration> findAllByEventAndAccount(DonationEvent event, Account account);
+    Optional<EventRegistration> findByEventAndCheckinToken(DonationEvent event, CheckinToken checkinToken);
     Optional<EventRegistration> findByEventAndAccount(DonationEvent event, Account account);
     Optional<EventRegistration> findByEventAndProfileId(DonationEvent event, Profile profile);
     Page<EventRegistration> findByEventAndTimeSlot(DonationEvent event, DonationTimeSlot timeSlot, Pageable pageable);

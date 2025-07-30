@@ -248,7 +248,7 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
                                     .filter(s -> s.getComponentType() == compReq.getComponentType())
                                     .mapToDouble(MedicalFacilityStockDto::getVolume)
                                     .sum();
-
+                            
                             if (totalAvailableVolume < compReq.getVolume()) {
                                 log.debug("Insufficient stock for request ID: {}, component: {}, required: {}, available: {}",
                                         request.getId(), compReq.getComponentType(), compReq.getVolume(),
