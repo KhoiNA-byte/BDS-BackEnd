@@ -48,8 +48,7 @@ public class BlogRequestServiceImpl implements BlogRequestService {
     @Autowired
     private DonationEventValidator validator;
 
-    @Value("${upload.dir}")
-    private String uploadDir;
+    private String uploadDir = System.getenv("UPLOAD_DIR");
 
     @PostConstruct
     public void init() {
