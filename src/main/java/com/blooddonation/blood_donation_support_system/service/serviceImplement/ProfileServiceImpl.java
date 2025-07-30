@@ -122,22 +122,22 @@ public class ProfileServiceImpl implements ProfileService {
         return profileRepository.findAll(pageable).map(ProfileMapper::toDto);
     }
 
-    @Scheduled(cron = "0 */5 * * * *") // Runs daily at 00:00
+    @Scheduled(cron = "0 */5 * * * *")
     @Transactional
     public void notifyEligibleDonors() {
         // Get all profiles where nextEligibleDonationDate is today
         List<Profile> eligibleDonors = profileRepository.findByNextEligibleDonationDateLessThanEqual(LocalDate.now());
 
 //         Add logging to verify execution
-//        System.out.println("Checking eligible donors at: " + LocalDate.now());
-//        System.out.println("Found " + eligibleDonors.size() + " eligible donors");
+        System.out.println("Checking eligible donors at: " + LocalDate.now());
+        System.out.println("Found " + eligibleDonors.size() + " eligible donors");
 
 
         for (Profile profile : eligibleDonors) {
             Account account = accountRepository.findById(profile.getAccountId())
                     .orElse(null);
 
-            if (account == null || account.getStatus().equals(AccountStatus.DISABLE) || !account.getRole().equals(Role.MEMBER)) {
+            if (account == null || account.getStatus().equals(AccountStatus.DISABLE) || !account.getRole().equals(Role.ADMIN)) {
                 continue;
             }
 
@@ -157,7 +157,7 @@ public class ProfileServiceImpl implements ProfileService {
                         "You're Eligible to Donate Blood Again!",
                         htmlMessage
                 );
-//                System.out.println("Notification sent to: " + account.getEmail());
+                System.out.println("Notification sent to: " + account.getEmail());
             } catch (Exception e) {
                 System.err.println("Failed to send email to " + account.getEmail() + ": " + e.getMessage());
             }

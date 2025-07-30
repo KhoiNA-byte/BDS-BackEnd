@@ -66,7 +66,7 @@ public class CheckinTokenServiceImpl implements CheckinTokenService {
             throw new RuntimeException("Token has expired");
         }
         Profile profile = checkinToken.getProfile();
-        EventRegistration eventRegistration = validator.getRegistrationOrThrow(profile.getPersonalId(), donationEvent);
+        EventRegistration eventRegistration = validator.getRegistrationOrThrow(profile.getPersonalId(), donationEvent, checkinToken);
         String jsonForm = eventRegistration.getJsonForm();
 //        deleteToken(token);
         return new ProfileWithFormResponseDto(ProfileMapper.toDto(profile), jsonForm, eventRegistration.getStatus(), checkinToken.getToken());// Convert to DTO
@@ -76,8 +76,8 @@ public class CheckinTokenServiceImpl implements CheckinTokenService {
     @Transactional
     public ProfileWithFormResponseDto getProfileFromPersonalId(String personalId, String email, Long eventId) {
         DonationEvent donationEvent = validator.getEventOrThrow(eventId);
-
-        EventRegistration eventRegistration = validator.getRegistrationOrThrow(personalId, donationEvent);
+        CheckinToken checkinToken1 = null;
+        EventRegistration eventRegistration = validator.getRegistrationOrThrow(personalId, donationEvent, checkinToken1);
         CheckinToken checkinToken = eventRegistration.getCheckinToken();
 
         if (checkinToken.getExpirationDate().isBefore(LocalDate.now())) {
