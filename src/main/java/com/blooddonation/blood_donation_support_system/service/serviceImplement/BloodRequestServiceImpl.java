@@ -56,9 +56,9 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
         List<BloodRequest> allRequests = bloodRequestRepository.findAllWithComponents();
         for (BloodRequest request : allRequests) {
             BloodRequestDto dto = BloodRequestMapper.toBloodRequestDto(request);
-            if (dto.getStatus() == BloodRequestStatus.PROCESSING && dto.isAutomation()) {
+            if (dto.getStatus() == BloodRequestStatus.PROCESSING && !dto.isAutomation()) {
                 bloodRequestQueue.add(dto);
-            } else if (dto.getStatus() == BloodRequestStatus.PENDING && dto.isAutomation()) {
+            } else if (dto.getStatus() == BloodRequestStatus.PENDING && !dto.isAutomation()) {
                 pendingRequestQueue.add(dto);
             }
         }
@@ -243,7 +243,7 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
                             processPendingRequest(request.getId());
                         }
                     }
-                    Thread.sleep(60 * 1000); // Sleep for 1 minutes
+                    Thread.sleep(5 * 1000); // Sleep for 2 seconds
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
