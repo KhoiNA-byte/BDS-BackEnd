@@ -38,7 +38,7 @@ public class AuthController {
             cookie.setSecure(false); // HTTPS only — use false for localhost HTTP dev
             cookie.setPath("/");
             cookie.setMaxAge(3600);
-            cookie.setDomain("localhost"); // Optional, but helps in some setups
+//            cookie.setDomain("localhost"); // Optional, but helps in some setups
             response.addCookie(cookie);
 
             return ResponseEntity.ok(loggedInAccount);

@@ -161,7 +161,7 @@ public class DonationEventRequestServiceImpl implements DonationEventRequestServ
                         + "<li>Donation Type: " + event.getDonationType() + "</li>"
                         + "<li>Status: " + event.getStatus() + "</li>"
                         + "</ul>"
-                        + "<p><a href='http://localhost:3000/donation-events/" + event.getId() + "'>View Event Details</a></p>"
+                        + "<p><a href='" + System.getenv("FRONTEND_URL") +"/donation-events/" + event.getId() + "'>View Event Details</a></p>"
                         + "<p>Best regards,<br>Blood Donation Support System</p>"
                         + "</body>"
                         + "</html>";
