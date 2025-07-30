@@ -26,7 +26,7 @@ public class JwtUtil {
     private final ProfileRepository profileRepository;
     private final AccountRepository accountRepository;
     private final SecretKey secretKey;
-    private final long tokenAge = 24 * 60 * 60;
+    private final long tokenAge = 24000 * 60 * 60;
 
     public JwtUtil(ProfileRepository profileRepository, AccountRepository accountRepository,
                    @Value("${jwt.secret}") String secret) {

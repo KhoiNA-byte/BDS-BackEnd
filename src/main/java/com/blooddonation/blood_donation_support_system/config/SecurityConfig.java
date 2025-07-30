@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/profile/**").hasAnyRole("MEMBER", "ADMIN", "STAFF")
                         .requestMatchers("/api/checkin/{eventId}/qr-code").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers("/api/checkin/info/{eventId}","/api/checkin/action/{eventId}").hasAnyRole("STAFF", "ADMIN")
-                        .requestMatchers("/api/event-registration/{eventId}/registerOffline", "/api/event-registration/{eventId}/register-guest").hasRole("STAFF")
+                        .requestMatchers("/api/event-registration/{eventId}/registerOffline", "/api/event-registration/{eventId}/register-guest").hasAnyRole("STAFF", "ADMIN")
                         .requestMatchers("/api/event-registration/**").hasAnyRole("MEMBER", "ADMIN", "STAFF")
                         .requestMatchers("/api/donation-event-request/pending/**").hasRole("ADMIN")
                         .requestMatchers("/api/donation-event-request/**").hasAnyRole("STAFF", "ADMIN")
