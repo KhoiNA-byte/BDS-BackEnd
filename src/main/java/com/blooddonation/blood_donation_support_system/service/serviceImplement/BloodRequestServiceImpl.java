@@ -14,6 +14,7 @@ import com.blooddonation.blood_donation_support_system.service.IBloodRequestServ
 import com.blooddonation.blood_donation_support_system.service.MedicalFacilityStockService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class BloodRequestServiceImpl implements IBloodRequestService {
     @Autowired
@@ -80,7 +82,6 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
 
         BloodRequest savedEntity = bloodRequestRepository.save(BloodRequestMapper.toBloodRequestEntity(bloodRequestDto, profile));
         BloodRequestDto bloodRequest = BloodRequestMapper.toBloodRequestDto(savedEntity);
-        if(!bloodRequest.isAutomation()) return bloodRequest;
         int newPriority = bloodRequest.calculatePriority();
         boolean isHighPriority = bloodRequest.getUrgency() == Urgency.HIGH;
         List<ComponentType> componentTypes = bloodRequest.getComponentRequests()
@@ -177,27 +178,43 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
     @Transactional
     public void availableQueueWorker() {
         Thread worker = new Thread(() -> {
+            log.info("Available queue worker started");
             while (true) {
                 try {
                     BloodRequestDto request = bloodRequestQueue.peek();
                     if (request == null) {
-                        Thread.sleep(1* 1000);
+                        log.info("Available queue is empty, sleeping for 5 seconds");
+                        Thread.sleep(5 * 1000);
                         continue;
                     }
+
                     int delay = getDelayMinutes(request.getUrgency());
                     long waited = Duration.between(request.getCreatedTime(), LocalDateTime.now()).toMinutes();
+
+                    log.info("Processing request ID: {}, urgency: {}, delay: {} min, waited: {} min",
+                            request.getId(), request.getUrgency(), delay, waited);
+
                     if (waited >= delay) {
                         bloodRequestQueue.poll();
+                        log.info("Fulfilling blood request ID: {} after waiting {} minutes",
+                                request.getId(), waited);
                         fulfillBloodRequest(request.getId());
+                        log.info("Successfully fulfilled blood request ID: {}", request.getId());
                     } else {
-                        // Need to fix this
-                        Thread.sleep(1000 * Math.max(1, delay - waited));
+                        long sleepTime = Math.max(1, delay - waited);
+                        log.debug("Request ID: {} not ready yet, sleeping for {} minutes",
+                                request.getId(), sleepTime);
+                        Thread.sleep(1000 * sleepTime);
                     }
                 } catch (InterruptedException e) {
+                    log.info("Available queue worker interrupted");
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {
+                    log.info("Error in available queue worker", e);
                 }
             }
+            log.info("Available queue worker stopped");
         });
         worker.setDaemon(true);
         worker.start();
@@ -207,12 +224,18 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
     @Transactional
     public void pendingQueueWorker() {
         Thread worker = new Thread(() -> {
+            log.info("Pending queue worker started");
             while (true) {
                 try {
                     List<BloodRequestDto> toProcess = new ArrayList<>();
                     List<BloodRequestDto> pendingList = new ArrayList<>(pendingRequestQueue);
 
+                    log.info("Checking {} pending requests for available stock", pendingList.size());
+
                     for (BloodRequestDto request : pendingList) {
+                        log.info("Checking stock availability for request ID: {}, blood type: {}, urgency: {}",
+                                request.getId(), request.getBloodType(), request.getUrgency());
+
                         List<ComponentType> componentTypes = request.getComponentRequests()
                                 .stream().map(ComponentRequestDto::getComponentType).collect(Collectors.toList());
                         List<MedicalFacilityStockDto> stockDtos = medicalFacilityStockService
@@ -220,35 +243,58 @@ public class BloodRequestServiceImpl implements IBloodRequestService {
 
                         boolean isStockAvailable = true;
                         for (ComponentRequestDto compReq : request.getComponentRequests()) {
-                            MedicalFacilityStockDto stock = stockDtos.stream()
+                            // Aggregate total volume for this component type from all available stock entries
+                            double totalAvailableVolume = stockDtos.stream()
                                     .filter(s -> s.getComponentType() == compReq.getComponentType())
-                                    .findFirst().orElse(null);
-                            if (stock == null || stock.getVolume() < compReq.getVolume()) {
+                                    .mapToDouble(MedicalFacilityStockDto::getVolume)
+                                    .sum();
+
+                            if (totalAvailableVolume < compReq.getVolume()) {
+                                log.debug("Insufficient stock for request ID: {}, component: {}, required: {}, available: {}",
+                                        request.getId(), compReq.getComponentType(), compReq.getVolume(),
+                                        totalAvailableVolume);
                                 isStockAvailable = false;
                                 break;
+                            } else {
+                                log.debug("Sufficient stock found for request ID: {}, component: {}, required: {}, available: {}",
+                                        request.getId(), compReq.getComponentType(), compReq.getVolume(),
+                                        totalAvailableVolume);
                             }
                         }
+
                         if(request.getUrgency().equals(Urgency.HIGH) && !isStockAvailable) {
+                            log.info("Handling high priority request ID: {} with insufficient stock", request.getId());
                             handleHighPriorityRequest(request, stockDtos, request.calculatePriority());
                             continue;
                         }
+
                         if (isStockAvailable) {
+                            log.info("Stock available for request ID: {}, moving to processing", request.getId());
                             medicalFacilityStockService.withdrawBloodFromStock(request);
                             toProcess.add(request);
                         }
                     }
 
+                    log.info("Moving {} requests from pending to processing", toProcess.size());
                     for (BloodRequestDto request : toProcess) {
                         if (pendingRequestQueue.remove(request)) {
+                            log.info("Processing pending request ID: {}", request.getId());
                             processPendingRequest(request.getId());
+                            log.info("Successfully moved request ID: {} to processing queue", request.getId());
                         }
                     }
-                    Thread.sleep(5 * 1000); // Sleep for 2 seconds
+
+                    log.info("Pending queue worker sleeping for 5 seconds");
+                    Thread.sleep(5 * 1000);
                 } catch (InterruptedException e) {
+                    log.info("Pending queue worker interrupted");
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {
+                    log.info("Error in pending queue worker", e);
                 }
             }
+            log.info("Pending queue worker stopped");
         });
         worker.setDaemon(true);
         worker.start();
