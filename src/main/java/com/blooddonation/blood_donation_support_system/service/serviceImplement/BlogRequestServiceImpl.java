@@ -52,24 +52,9 @@ public class BlogRequestServiceImpl implements BlogRequestService {
 
     @PostConstruct
     public void init() {
-        // Use environment variable or default to app's working directory
-        String envUploadDir = System.getenv("UPLOAD_DIR");
-        if (envUploadDir != null && !envUploadDir.isEmpty()) {
-            uploadDir = envUploadDir;
-        } else {
-            // Use relative path from application's working directory
-            uploadDir = "./uploads";
-        }
-
-        log.info("Upload directory configured: {}", uploadDir);
-
-        try {
-            Path uploadPath = Paths.get(uploadDir);
-            Files.createDirectories(uploadPath);
-            log.info("Upload directory ready: {}", uploadPath.toAbsolutePath());
-        } catch (IOException e) {
-            log.error("Failed to create upload directory: {}", uploadDir, e);
-            throw new RuntimeException("Cannot create upload directory: " + uploadDir, e);
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
     }
 
