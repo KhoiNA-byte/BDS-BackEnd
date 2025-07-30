@@ -81,8 +81,6 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-RUN mkdir -p /app/uploads/Blog && \
-    chown -R appuser:appuser /app/uploads
 
 USER appuser
 

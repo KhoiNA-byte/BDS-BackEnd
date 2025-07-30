@@ -137,7 +137,7 @@ public class ProfileServiceImpl implements ProfileService {
             Account account = accountRepository.findById(profile.getAccountId())
                     .orElse(null);
 
-            if (account == null || account.getStatus().equals(AccountStatus.DISABLE) || !account.getRole().equals(Role.MEMBER)) {
+            if (account == null || account.getStatus().equals(AccountStatus.DISABLE) || !account.getRole().equals(Role.ADMIN)) {
                 continue;
             }
 
