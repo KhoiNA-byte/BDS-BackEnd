@@ -70,6 +70,7 @@ FROM eclipse-temurin:21-jre-jammy AS final
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
+
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -79,6 +80,10 @@ RUN adduser \
     --no-create-home \
     --uid "${UID}" \
     appuser
+
+RUN mkdir -p /app/uploads/Blog && \
+    chown -R appuser:appuser /app/uploads
+
 USER appuser
 
 # Copy the executable from the "package" stage.
