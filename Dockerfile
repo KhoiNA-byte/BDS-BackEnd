@@ -79,10 +79,13 @@ RUN adduser \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
-    appuser
-
+    appuser && \
+    mkdir -p /uploads/Blog && \
+    chown -R appuser:appuser /uploads
 
 USER appuser
+WORKDIR /uploads/Blog
+
 
 # Copy the executable from the "package" stage.
 COPY --from=extract build/target/extracted/dependencies/ ./
